@@ -1,52 +1,49 @@
-import click
-import zipfile
+#!/usr/bin/env python3
+
 import base64
-from merkle import *
+import json
+from hashlib import sha256
+from pprint import pprint
 
-class LeafGenerator:
-  def createLeafInput(payload, timestamp):
-    bytearray = b'\x00\x00'
-    
-    bytearray += timestamp.to_bytes(8, byteorder='big')
+def leaf_hash(entry):
+  leaf_input = entry['leaf_input']
+  leaf_input_raw = base64.b64decode(leaf_input)
+  bytearray = b'\x00' + leaf_input_raw
+  return base64.b64encode(sha256(bytearray).digest())
 
-    bytearray += b'\x80\x00'
-    
-    bytearray += len(payload).to_bytes(3, byteorder='big')
-    
-    bytearray += payload.encode()
+def left_subtree_size(tree_size):
+  #TODO
+  if tree_size == 3:
+    return 2
+  if tree_size == 2:
+    return 1
+  raise "not implemented"
 
-    bytearray += b'\x00\x00'
-    
-    return base64.b64encode(bytearray)
+def tree_hash(entries):
+  n = len(entries)
+  k = left_subtree_size(n)
 
+  return "bar"
 
-# @click.command()
-# @click.option('--filename', prompt='downloaded file name')
-# def run(filename):
+# based on MTH() defined in RFC6962§2.1
+def merkle_tree_hash(entries):
+  if len(entries) == 1:
+    return leaf_hash(entries[0])
+  else:
+    return tree_hash(entries)
+
 def run():
-  # result = zipfile.is_zipfile(filename)
-  # print(result)
-  # print("finename provided is: " + filename)
-  # leaf = LeafGenerator("AAAAAAFSeasJ5IAAAABZeyAib3duZXIiOiAiRm9yZXN0cnkgQ29tbWlzc2lvbiIsICJlbmQtZGF0ZSI6ICIiLCAiZ292ZXJubWVudC1kb21haW4iOiAiN3N0YW5lcy5nb3YudWsiIH0AAA==")
-  # leaf = LeafGenerator.createLeafInput('{"key":"value"}', 1452868835667)
-  # print(leaf)
+  with open('entries2.json') as data_file:
+    data = json.load(data_file)
+    pprint(data)
 
- 
-
-  merkle_tree = MerkleTree()
-  
-
-  # encodedValue = "AAAAAAFSjeCvzYAAAAAUeyAidGhpbmciOiAic3R1ZmYiIH0AAA==".encode('utf-8')
-  # print(encodedValue)
-  merkle_tree.add(b'\x00' + '{ "thing": "stuff" }'.encode('utf-8'))
-  
-  merkle_tree.add(b'\x00' + '{ "huh, no cbor? :)": "nope, none!" }'.encode('utf-8'))
-  
-  print(base64.b64encode(merkle_tree.build()))
+  print(merkle_tree_hash(data['entries']))
+  print(leaf_hash(data['entries'][0]))
+  # read entries.json
+  # compute root hash from entries
+  # print root hash
+  # visually compare with root hash in sth.json
 
 if __name__ == '__main__':
   run()
-
-
-
 
