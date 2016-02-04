@@ -1,0 +1,3 @@
+-r prod.txt
+pytest==2.8.7
+hypothesis==2.0.0
