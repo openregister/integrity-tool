@@ -4,6 +4,7 @@ import base64
 import json
 from hashlib import sha256
 from pprint import pprint
+from math import *
 
 def leaf_hash(entry):
   leaf_input = entry['leaf_input']
@@ -12,12 +13,8 @@ def leaf_hash(entry):
   return base64.b64encode(sha256(bytearray).digest())
 
 def left_subtree_size(tree_size):
-  #TODO
-  if tree_size == 3:
-    return 2
-  if tree_size == 2:
-    return 1
-  raise "not implemented"
+  assert tree_size > 1
+  return 2**((tree_size - 1).bit_length() -1)
 
 def tree_hash(entries):
   n = len(entries)
