@@ -10,32 +10,36 @@ def leaf_hash(entry):
   leaf_input = entry['leaf_input']
   leaf_input_raw = base64.b64decode(leaf_input)
   bytearray = b'\x00' + leaf_input_raw
-  return base64.b64encode(sha256(bytearray).digest())
+  return sha256(bytearray).digest()
 
 def left_subtree_size(tree_size):
   assert tree_size > 1
   return 2**((tree_size - 1).bit_length() -1)
 
-def tree_hash(entries):
+def subtree_hash(entries):
   n = len(entries)
-  k = left_subtree_size(n)
+  assert n > 1
 
-  return "bar"
+  k = left_subtree_size(n)
+  left_tree_hash = merkle_tree_hash(entries[0:k])
+  right_tree_hash = merkle_tree_hash(entries[k:n])
+
+  bytearray = b'\x01' + left_tree_hash + right_tree_hash
+  return sha256(bytearray).digest()
 
 # based on MTH() defined in RFC6962§2.1
 def merkle_tree_hash(entries):
   if len(entries) == 1:
     return leaf_hash(entries[0])
   else:
-    return tree_hash(entries)
+    return subtree_hash(entries)
 
 def run():
-  with open('entries2.json') as data_file:
+  with open('entries.json') as data_file:
     data = json.load(data_file)
     pprint(data)
 
-  print(merkle_tree_hash(data['entries']))
-  print(leaf_hash(data['entries'][0]))
+  print(base64.b64encode(merkle_tree_hash(data['entries'])))
   # read entries.json
   # compute root hash from entries
   # print root hash
