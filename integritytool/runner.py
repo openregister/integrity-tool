@@ -30,13 +30,14 @@ class ReplCmd(cmd.Cmd):
     self.runner.compute_root_hash()
 
   def do_mapth(self, arg):
-    #try:
-    key, value, proof = arg.split(' ')
-    key = key.strip()
-    value = value.strip()
-    proof = [s[1:-1] if (s[0] == '\'' and s[-1] == '\'') else int(s) for s in proof[1:-1].split(',')]
-    #except:
-      #self.help_mapth()
+    try:
+      key, value, proof = arg.split(' ')
+      key = key.strip()
+      value = value.strip()
+      proof = [s[1:-1] if (s[0] == '\'' and s[-1] == '\'') else int(s) for s in proof[1:-1].split(',')]
+    except:
+      self.help_mapth()
+      return
 
     print('Key: ' + key)
     print('Value: ' + value)
